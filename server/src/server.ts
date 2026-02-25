@@ -1,0 +1,14 @@
+import { errorHandler } from '@/core/errors/error-handler'
+import App from '@/app'
+import { ExampleRoutes } from './modules/example/example.routes'
+import { env } from '@/config/env'
+
+export const app = new App({
+  routes: [ExampleRoutes]
+})
+
+errorHandler(app.getApp())
+
+if (env.NODE_ENV !== 'test') {
+  app.listen()
+}
