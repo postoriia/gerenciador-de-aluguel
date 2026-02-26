@@ -1,7 +1,8 @@
-import { errorHandler } from '@/core/errors/error-handler'
+import 'module-alias/register'
 import App from '@/app'
-import { ExampleRoutes } from './modules/example/example.routes'
-import { AuthRoutes } from './modules/auth/auth.routes'
+import { errorHandler } from '@/core/errors/error-handler'
+import { ExampleRoutes } from '@/modules/example/example.routes'
+import { AuthRoutes } from '@/modules/auth/auth.routes'
 import { env } from '@/config/env'
 
 export const app = new App({
