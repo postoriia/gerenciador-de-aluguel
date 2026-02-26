@@ -1,5 +1,5 @@
 {
-  "name": "meta-hero-backend",
+  "name": "habittar-backend",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
