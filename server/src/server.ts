@@ -1,10 +1,11 @@
 import { errorHandler } from '@/core/errors/error-handler'
 import App from '@/app'
 import { ExampleRoutes } from './modules/example/example.routes'
+import { AuthRoutes } from './modules/auth/auth.routes'
 import { env } from '@/config/env'
 
 export const app = new App({
-  routes: [ExampleRoutes]
+  routes: [ExampleRoutes, AuthRoutes]
 })
 
 errorHandler(app.getApp())

@@ -10,6 +10,8 @@ import scalarApiReference from '@scalar/fastify-api-reference'
 import cors from '@fastify/cors'
 import { env } from '@/config/env'
 import { z } from 'zod/v4'
+import fastifyJwt from '@fastify/jwt'
+import fastifyCookie from '@fastify/cookie'
 
 interface CustomRouteHandler {
   prefix_route: string
@@ -24,6 +26,13 @@ class App {
   constructor(appInit: { routes: (new () => CustomRouteHandler)[] }) {
     this.app = fastify({
       logger: true
+    })
+    this.app.register(fastifyJwt, {
+      secret: env.JWT_SECRET as string
+    })
+    this.app.register(fastifyCookie, {
+      secret: env.COOKIE_SECRET as string,
+      hook: 'onRequest'
     })
 
     this.app.register(oauthPlugin, {
@@ -60,7 +69,8 @@ class App {
           version: '1.0.0'
         },
         tags: [
-          { name: 'Examples', description: 'Example boilerplate endpoints' }
+          { name: 'Examples', description: 'Example boilerplate endpoints' },
+          { name: 'Auth', description: 'Authentication endpoints and users' }
         ],
         servers: []
       },
