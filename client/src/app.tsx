@@ -1,11 +1,11 @@
-import Router from './routes'
+import LoginPage from './features/auth/pages/login.tsx'
 import { AppProvider } from './provider'
 
 function App() {
   return (
     <AppProvider>
       <div className="h-screen">
-        <Router />
+        <LoginPage />
       </div>
     </AppProvider>
   )
