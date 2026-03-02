@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 
 export default function LoginPage() {
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md p-10 bg-card rounded-2xl shadow-lg">
