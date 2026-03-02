@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   return (
@@ -79,9 +80,9 @@ export default function LoginPage() {
         {/* Cadastrar */}
         <p className="text-center text-sm text-muted-foreground mt-6">
           Não possui uma conta?{" "}
-          <a href="#" className="text-primary hover:underline">
+          <Link to="/register" className="text-primary hover:underline">
             Cadastre-se
-          </a>
+          </Link>
         </p>
       </div>
     </div>
