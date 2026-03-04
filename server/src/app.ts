@@ -70,7 +70,9 @@ class App {
         },
         tags: [
           { name: 'Examples', description: 'Example boilerplate endpoints' },
-          { name: 'Auth', description: 'Authentication endpoints and users' }
+          { name: 'Auth', description: 'Authentication endpoints and users' },
+          { name: 'Properties', description: 'Real estate properties management' },
+          { name: 'Tenants', description: 'Tenants registration management' }
         ],
         servers: []
       },

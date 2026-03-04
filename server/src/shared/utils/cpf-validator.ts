@@ -6,7 +6,7 @@ export function isValidCPF(cpf: string): boolean {
   }
 
   const cpfDigits = cleanCPF.split('').map((el) => +el)
-  
+
   const getRest = (count: number) => {
     return (
       (cpfDigits
@@ -19,4 +19,12 @@ export function isValidCPF(cpf: string): boolean {
   }
 
   return getRest(10) === cpfDigits[9] && getRest(11) === cpfDigits[10]
+}
+
+export function formatCPF(cpf: string): string {
+  const cleanCPF = cpf.replace(/\D/g, '')
+  if (cleanCPF.length === 11) {
+    return cleanCPF.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  }
+  return cpf
 }

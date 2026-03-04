@@ -12,7 +12,7 @@ export class AuthRepository implements IAuthRepository {
     this.db = DatabaseConnection.getInstance().getClient()
   }
 
-  async saveUser(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser> {
+  async save(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser> {
     const [user] = await this.db.insert(users).values(data).returning()
     return user as IUser
   }
@@ -26,6 +26,59 @@ export class AuthRepository implements IAuthRepository {
       return (user as IUser) || null
     } catch (error) {
       throw new Error('Error finding user by email: ' + error)
+    }
+  }
+
+  async findById(id: string): Promise<IUser | null> {
+    try {
+      const user = await this.db.query.users.findFirst({
+        where: eq(users.id, id)
+      })
+
+      return (user as IUser) || null
+    } catch (error) {
+      throw new Error('Error finding user by ID: ' + error)
+    }
+  }
+
+  async findAll(): Promise<IUser[]> {
+    try {
+      const allUsers = await this.db.query.users.findMany()
+      return allUsers as IUser[]
+    } catch (error) {
+      throw new Error('Error finding all users: ' + error)
+    }
+  }
+
+  async deleteById(id: string): Promise<void> {
+    try {
+      await this.db.delete(users).where(eq(users.id, id))
+    } catch (error) {
+      throw new Error('Error deleting user: ' + error)
+    }
+  }
+
+  async update(
+    id: string,
+    data: Partial<Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<IUser> {
+    try {
+      const [updatedUser] = await this.db
+        .update(users)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, id))
+        .returning()
+
+      if (!updatedUser) {
+        throw new Error('User not found for update')
+      }
+
+      return updatedUser as IUser
+    } catch (error) {
+      throw new Error('Error updating user: ' + error)
     }
   }
 

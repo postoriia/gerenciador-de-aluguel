@@ -4,6 +4,7 @@ export interface IUser {
   email: string
   password_hash: string
   cpf: string
+  phone: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -18,8 +19,12 @@ export interface IRefreshToken {
 }
 
 export interface IAuthRepository {
-  saveUser(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser>
+  save(data: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser>
   findByEmail(email: string): Promise<IUser | null>
+  findById(id: string): Promise<IUser | null>
+  findAll(): Promise<IUser[]>
+  deleteById(id: string): Promise<void>
+  update(id: string, data: Partial<Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>>): Promise<IUser>
 
   saveRefreshToken(data: Omit<IRefreshToken, 'id' | 'createdAt' | 'updatedAt'>): Promise<IRefreshToken>
   findByHashedToken(hashedToken: string): Promise<IRefreshToken | null>
