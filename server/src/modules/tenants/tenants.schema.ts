@@ -1,5 +1,6 @@
 import { z } from 'zod/v4'
-import { isValidCPF } from '@/shared/utils/cpf-validator'
+import { isValidCPF, formatCPF } from '@/shared/utils/cpf-validator'
+import { isValidPhone, formatPhone } from '@/shared/utils/phone-validator'
 
 export const tenantSchema = z.object({
     id: z.string().uuid().describe('Tenant unique identifier'),
@@ -14,10 +15,13 @@ export const tenantSchema = z.object({
 export const createTenantSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email format'),
-    phone: z.string().min(1, 'Phone is required'),
-    cpf: z.string().refine((val) => isValidCPF(val), {
-        message: 'CPF inválido.'
-    })
+    phone: z.string()
+        .min(1, 'Phone is required')
+        .refine(isValidPhone, 'Telefone inválido.')
+        .transform(formatPhone),
+    cpf: z.string()
+        .refine((val) => isValidCPF(val), { message: 'CPF inválido.' })
+        .transform(formatCPF)
 })
 
 export const updateTenantSchema = createTenantSchema.partial()

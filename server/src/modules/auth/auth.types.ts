@@ -4,6 +4,7 @@ export interface IUser {
   email: string
   password_hash: string
   cpf: string
+  phone: string | null
   createdAt: Date
   updatedAt: Date
 }

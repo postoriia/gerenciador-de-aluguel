@@ -23,7 +23,8 @@ export class AuthService {
       name: data.name,
       email: data.email,
       password_hash: passwordHash,
-      cpf: data.cpf
+      cpf: data.cpf,
+      phone: data.phone ?? null
     })
 
     return user
