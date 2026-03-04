@@ -1,4 +1,4 @@
-//import 'module-alias/register'
+import 'module-alias/register'
 import App from '@/app'
 import { errorHandler } from '@/core/errors/error-handler'
 import { ExampleRoutes } from '@/modules/example/example.routes'
