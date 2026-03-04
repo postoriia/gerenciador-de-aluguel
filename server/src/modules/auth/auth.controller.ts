@@ -52,4 +52,61 @@ export class AuthController {
       data: userSafe
     }
   }
+
+  public async findById(
+    request: FastifyRequest
+  ): Promise<{ message: string; data: Omit<IUser, 'password_hash'> }> {
+    const { id } = request.params as { id: string }
+    const user = await this.service.findById(id)
+    const { password_hash, ...userSafe } = user
+    return {
+      message: 'User found successfully',
+      data: userSafe
+    }
+  }
+
+  public async findAll(): Promise<{ message: string; data: Omit<IUser, 'password_hash'>[] }> {
+    const users = await this.service.findAll()
+    const usersSafe = users.map((user) => {
+      const { password_hash, ...safe } = user
+      return safe
+    })
+    return {
+      message: 'Users retrieved successfully',
+      data: usersSafe
+    }
+  }
+
+  public async deleteById(request: FastifyRequest): Promise<{ message: string }> {
+    const { id } = request.params as { id: string }
+    await this.service.deleteById(id)
+    return { message: 'User deleted successfully' }
+  }
+
+  public async update(
+    request: FastifyRequest
+  ): Promise<{ message: string; data: Omit<IUser, 'password_hash'> }> {
+    const { id } = request.params as { id: string }
+    const data = request.body as Partial<RegisterInput>
+    const user = await this.service.update(id, data)
+    const { password_hash, ...userSafe } = user
+    return {
+      message: 'User updated successfully',
+      data: userSafe
+    }
+  }
+
+  public async logout(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<{ message: string }> {
+    await request.jwtVerify()
+    const { sub } = request.user as { sub: string }
+
+    await this.service.logout(sub)
+
+    reply.clearCookie('refreshToken', { path: '/' })
+
+    return { message: 'Logged out successfully' }
+  }
 }
