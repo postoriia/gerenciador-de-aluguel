@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import PrivateRoute from './private-route'
 import PublicRoute from './public-route'
@@ -10,6 +10,8 @@ import DashboardPage from '@/features/dashboard/pages/dashboard'
 const Router = () => (
   <BrowserRouter>
     <Routes>
+      <Route path="/" element={<Navigate to="/entrar" />} />
+
       <Route
         path="/entrar"
         element={
