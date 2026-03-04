@@ -2,7 +2,7 @@ export interface User {
   id: string
   name: string
   email: string
-  authProvider: string
+  cpf: string
   createdAt: string
   updatedAt: string
 }
@@ -13,13 +13,20 @@ export interface LoginBody {
 }
 
 export interface LoginResponse {
-  user: User
-  token: string
+  message: string
+  accessToken: string
+  data: User
 }
 
 export interface RegisterBody {
   name: string
   email: string
   password: string
-  confirmPassword: string
+  cpf: string
 }
+
+export interface RegisterResponse {
+  message: string
+  data: User
+}
+
