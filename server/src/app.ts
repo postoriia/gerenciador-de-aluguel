@@ -72,7 +72,8 @@ class App {
           { name: 'Examples', description: 'Example boilerplate endpoints' },
           { name: 'Auth', description: 'Authentication endpoints and users' },
           { name: 'Properties', description: 'Real estate properties management' },
-          { name: 'Tenants', description: 'Tenants registration management' }
+          { name: 'Tenants', description: 'Tenants registration management' },
+          { name: 'Contracts', description: 'Contracts registration management'}
         ],
         servers: []
       },
