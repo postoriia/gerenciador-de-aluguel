@@ -73,7 +73,8 @@ class App {
           { name: 'Auth', description: 'Authentication endpoints and users' },
           { name: 'Properties', description: 'Real estate properties management' },
           { name: 'Tenants', description: 'Tenants registration management' },
-          { name: 'Contracts', description: 'Contracts registration management'}
+          { name: 'Contracts', description: 'Contracts registration management'},
+          { name: 'Payments', description: 'Payments history management'}
         ],
         servers: []
       },
