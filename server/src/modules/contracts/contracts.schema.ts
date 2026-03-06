@@ -1,18 +1,18 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const contractStatusEnum = z.enum(['active', 'finished', 'canceled', 'defaulted'])
 
 export const contractSchema = z.object({
-  id: z.string().uuid().describe('Contract unique identifier'),
-  propertyId: z.string().uuid().describe('Property ID'),
-  tenantId: z.string().uuid().describe('Tenant ID'),
-  startDate: z.coerce.date().describe('Contract start date'),
-  endDate: z.coerce.date().describe('Contract end date'),
-  rentAmount: z.number().positive().describe('Monthly rent amount'),
-  depositAmount: z.number().nonnegative().describe('Security deposit amount'),
-  status: contractStatusEnum.describe('Current status of the contract'),
-  createdAt: z.date().describe('Creation date'),
-  updatedAt: z.date().describe('Last update date')
+  id: z.string().uuid(),
+  propertyId: z.string().uuid(),
+  tenantId: z.string().uuid(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  rentAmount: z.coerce.number(),
+  depositAmount: z.coerce.number(),
+  status: contractStatusEnum,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
 })
 
 export const createContractSchema = z.object({

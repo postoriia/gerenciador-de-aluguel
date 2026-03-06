@@ -7,7 +7,7 @@ import {
   contractSchema
 } from './contracts.schema'
 import { ContractController } from './contracts.controller'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 const messageSchema = z.object({ message: z.string() })
 

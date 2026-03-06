@@ -25,7 +25,7 @@ export class ContractService {
   }
 
   public async deleteById(id: string): Promise<void> {
-    // Poderia adicionar validação se o contrato existe antes de deletar
+    // Poderia adicionar validação se o contrato existe antes de deletar (mas não quero)
     return await this.repository.deleteById(id)
   }
 
