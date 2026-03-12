@@ -1,12 +1,15 @@
 function FilterButton({
   label,
   active = false,
+  onClick,
 }: {
   label: string
   active?: boolean
+  onClick?: () => void
 }) {
   return (
     <button
+      onClick={onClick}
       className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
         active
           ? 'bg-[#115e59] text-white'
