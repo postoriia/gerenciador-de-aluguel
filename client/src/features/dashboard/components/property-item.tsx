@@ -1,11 +1,18 @@
 import { Badge } from '@/components/ui/badge'
 
-function PropertyItem({ name, desc, status, payStatus }: any) {
+function PropertyItem({ name, desc, status, payStatus, imageUrl }: any) {
   return (
     <div className="flex items-center justify-between group cursor-pointer">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-slate-200" />{' '}
-        {/* Placeholder para imagem */}
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={name}
+            className="w-10 h-10 rounded-lg object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-lg bg-slate-200" />
+        )}
         <div>
           <p className="font-semibold text-sm">{name}</p>
           <p className="text-xs text-muted-foreground">{desc}</p>
@@ -26,3 +33,4 @@ function PropertyItem({ name, desc, status, payStatus }: any) {
 }
 
 export default PropertyItem
+

@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 
-function PaymentItem({ name, place, value, status }: any) {
+function PaymentItem({ name, place, month, value, status }: any) {
   const statusColors: any = {
     Pago: 'bg-emerald-50 text-emerald-600',
     Atrasado: 'bg-red-50 text-red-600',
@@ -10,7 +10,10 @@ function PaymentItem({ name, place, value, status }: any) {
     <div className="flex items-center justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0">
       <div>
         <p className="font-semibold text-sm">{name}</p>
-        <p className="text-xs text-muted-foreground">{place}</p>
+        {place && <p className="text-xs text-muted-foreground">{place}</p>}
+        {month && (
+          <p className="text-xs text-muted-foreground/70">{month}</p>
+        )}
       </div>
       <div className="flex items-center gap-4">
         <span className="font-bold text-sm">{value}</span>
@@ -26,3 +29,4 @@ function PaymentItem({ name, place, value, status }: any) {
 }
 
 export default PaymentItem
+

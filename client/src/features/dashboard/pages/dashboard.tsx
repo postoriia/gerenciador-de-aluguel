@@ -1,8 +1,102 @@
-import { Building2, Users, DollarSign, AlertCircle } from 'lucide-react'
+import { useMemo } from 'react'
+import { Building2, DollarSign, AlertCircle, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PaymentItem, PropertyItem, StatCard } from '../components'
+import { usePropertiesQuery } from '@/features/properties/hooks/use-properties-query'
+import { usePaymentsQuery } from '@/features/payments/hooks/use-payments-query'
+import { useContractsQuery } from '@/features/contracts/hooks/use-contracts-query'
+import { useTenantsQuery } from '@/features/tenants/hooks/use-tenants-query'
+import {
+  statusLabels,
+  monthLabels,
+  type PaymentStatus,
+} from '@/features/payments/types/payments'
+import { toast } from 'sonner'
 
 export default function DashboardPage() {
+  const {
+    data: propertiesData,
+    isLoading: propertiesLoading,
+    isError: propertiesError,
+  } = usePropertiesQuery()
+  const {
+    data: paymentsData,
+    isLoading: paymentsLoading,
+    isError: paymentsError,
+  } = usePaymentsQuery()
+  const { data: contractsData, isLoading: contractsLoading } = useContractsQuery()
+  const { data: tenantsData, isLoading: tenantsLoading } = useTenantsQuery()
+
+  const isLoading = propertiesLoading || paymentsLoading || contractsLoading || tenantsLoading
+
+  if (propertiesError) toast.error('Erro ao carregar imóveis.')
+  if (paymentsError) toast.error('Erro ao carregar pagamentos.')
+
+  const properties = propertiesData?.data ?? []
+  const payments = paymentsData?.data ?? []
+  const contracts = contractsData?.data ?? []
+  const tenants = tenantsData?.data ?? []
+
+  // Mapas para lookup
+  const contractMap = useMemo(
+    () => new Map(contracts.map((c) => [c.id, c])),
+    [contracts]
+  )
+  const tenantMap = useMemo(
+    () => new Map(tenants.map((t) => [t.id, t])),
+    [tenants]
+  )
+  const propertyMap = useMemo(
+    () => new Map(properties.map((p) => [p.id, p])),
+    [properties]
+  )
+
+  const resolveTenantName = (contractId: string): string => {
+    const contract = contractMap.get(contractId)
+    if (!contract) return '—'
+    const tenant = tenantMap.get(contract.tenantId)
+    return tenant?.name ?? '—'
+  }
+
+  const resolvePropertyTitle = (contractId: string): string => {
+    const contract = contractMap.get(contractId)
+    if (!contract) return '—'
+    const property = propertyMap.get(contract.propertyId)
+    return property?.title ?? '—'
+  }
+
+  const stats = useMemo(() => {
+    const total = properties.length
+    const occupied = properties.filter((p) => !p.isAvailable).length
+    const vacant = properties.filter((p) => p.isAvailable).length
+
+    const received = payments
+      .filter((p) => p.status === 'paid')
+      .reduce((sum, p) => sum + p.amount, 0)
+
+    const latePayments = payments.filter((p) => p.status === 'late')
+    const lateTotal = latePayments.reduce((sum, p) => sum + p.amount, 0)
+
+    return { total, occupied, vacant, received, lateTotal, lateCount: latePayments.length }
+  }, [properties, payments])
+
+  const recentPayments = useMemo(() => {
+    return [...payments]
+      .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+      .slice(0, 4)
+  }, [payments])
+
+  const formatCurrency = (value: number) =>
+    `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="p-8">
       <header className="mb-8">
@@ -13,29 +107,23 @@ export default function DashboardPage() {
       </header>
 
       {/* Top Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Total de Imóveis"
-          value="6"
-          subValue="4 ocupados · 2 vagos"
+          value={String(stats.total)}
+          subValue={`${stats.occupied} ocupados · ${stats.vacant} vagos`}
           icon={<Building2 className="text-teal-600" />}
         />
         <StatCard
-          title="Inquilinos"
-          value="4"
-          subValue="Ativos atualmente"
-          icon={<Users className="text-teal-600" />}
-        />
-        <StatCard
           title="Receita Recebida"
-          value="R$ 15.700"
+          value={formatCurrency(stats.received)}
           subValue="Pagamentos confirmados"
           icon={<DollarSign className="text-teal-600" />}
         />
         <StatCard
           title="Inadimplência"
-          value="R$ 3.200"
-          subValue="1 pagamento(s) atrasado(s)"
+          value={formatCurrency(stats.lateTotal)}
+          subValue={`${stats.lateCount} pagamento(s) atrasado(s)`}
           icon={<AlertCircle className="text-red-500" />}
           color="red"
         />
@@ -49,33 +137,27 @@ export default function DashboardPage() {
             <CardTitle className="text-lg font-bold">
               Pagamentos Recentes
             </CardTitle>
-            <p className="text-xs text-muted-foreground">Fevereiro 2025</p>
+            <p className="text-xs text-muted-foreground">
+              Últimos pagamentos registrados
+            </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            <PaymentItem
-              name="Maria Silva"
-              place="Apartamento Centro"
-              value="R$ 1.800"
-              status="Pago"
-            />
-            <PaymentItem
-              name="João Santos"
-              place="Casa Jardim Europa"
-              value="R$ 3.200"
-              status="Atrasado"
-            />
-            <PaymentItem
-              name="Ana Oliveira"
-              place="Sobrado Pinheiros"
-              value="R$ 4.500"
-              status="Pendente"
-            />
-            <PaymentItem
-              name="Carlos Mendes"
-              place="Studio Itaim"
-              value="R$ 2.200"
-              status="Pago"
-            />
+            {recentPayments.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhum pagamento registrado.
+              </p>
+            ) : (
+              recentPayments.map((payment) => (
+                <PaymentItem
+                  key={payment.id}
+                  name={resolveTenantName(payment.contractId)}
+                  place={resolvePropertyTitle(payment.contractId)}
+                  month={`${monthLabels[payment.referenceMonth]} ${payment.referenceYear}`}
+                  value={`R$ ${payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  status={statusLabels[payment.status as PaymentStatus]}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -86,29 +168,21 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Status de ocupação</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <PropertyItem
-              name="Apartamento Centro"
-              desc="Apartamento · 2 quartos"
-              status="Ocupado"
-              payStatus="Pago"
-            />
-            <PropertyItem
-              name="Casa Jardim Europa"
-              desc="Casa · 3 quartos"
-              status="Ocupado"
-              payStatus="Atrasado"
-            />
-            <PropertyItem
-              name="Kitnet Vila Madalena"
-              desc="Kitnet · 1 quarto"
-              status="Vago"
-            />
-            <PropertyItem
-              name="Sobrado Pinheiros"
-              desc="Sobrado · 4 quartos"
-              status="Ocupado"
-              payStatus="Pendente"
-            />
+            {properties.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhum imóvel cadastrado.
+              </p>
+            ) : (
+              properties.slice(0, 5).map((property) => (
+                <PropertyItem
+                  key={property.id}
+                  name={property.title}
+                  desc={`${property.type} · ${property.bedrooms} quartos`}
+                  status={property.isAvailable ? 'Vago' : 'Ocupado'}
+                  imageUrl={property.imageUrl}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
