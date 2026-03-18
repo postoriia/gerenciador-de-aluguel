@@ -9,7 +9,15 @@ interface Props {
 const PublicRoute: React.FC<Props> = ({ children }) => {
   const { isAuthenticated } = useAuthStore((state) => state)
 
-  return isAuthenticated ? <Navigate to="/dashboard" /> : children
+  // Se o Zustand diz que está logado, ele manda para o dashboard
+  // Adicione um log aqui para debugar no F12
+  console.log("PublicRoute - Autenticado?", isAuthenticated)
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return children
 }
 
 export default PublicRoute

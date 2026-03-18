@@ -9,6 +9,7 @@ type AuthState = {
   setUser: (user: User | null) => void
 }
 
+
 const useAuthStore = create<AuthState>()(
   logger<AuthState>(
     (set) => ({
