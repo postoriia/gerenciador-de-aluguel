@@ -2,7 +2,7 @@ import { api } from '@/lib/api'
 import { type PropertiesResponse, type PropertyResponse } from '../types/properties'
 
 export const getProperties = async (): Promise<PropertiesResponse> => {
-  const response = await api.get<PropertiesResponse>('/properties')
+  const response = await api.get<PropertiesResponse>('/properties/owner')
   return response.data
 }
 

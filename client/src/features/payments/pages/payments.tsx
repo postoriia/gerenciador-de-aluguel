@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Search, Loader2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,6 @@ import { useContractsQuery } from '@/features/contracts/hooks/use-contracts-quer
 import { useTenantsQuery } from '@/features/tenants/hooks/use-tenants-query'
 import { usePropertiesQuery } from '@/features/properties/hooks/use-properties-query'
 import {
-  type Payment,
   type PaymentStatus,
   statusLabels,
   monthLabels,
@@ -17,9 +16,12 @@ import { toast } from 'sonner'
 
 type FilterType = 'todos' | 'paid' | 'pending' | 'late'
 
+const ITEMS_PER_PAGE = 10
+
 export default function PaymentsPage() {
   const [filter, setFilter] = useState<FilterType>('todos')
   const [search, setSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const { data: paymentsData, isLoading: paymentsLoading, isError: paymentsError } = usePaymentsQuery()
   const { data: contractsData, isLoading: contractsLoading } = useContractsQuery()
@@ -28,11 +30,11 @@ export default function PaymentsPage() {
 
   const isLoading = paymentsLoading || contractsLoading || tenantsLoading || propertiesLoading
 
-  if (paymentsError) {
-    toast.error('Erro ao carregar pagamentos.')
-  }
+  useEffect(() => {
+    if (paymentsError) toast.error('Erro ao carregar pagamentos.')
+  }, [paymentsError])
 
-  const payments: Payment[] = paymentsData?.data ?? []
+  const payments = paymentsData?.data ?? []
   const contracts = contractsData?.data ?? []
   const tenants = tenantsData?.data ?? []
   const properties = propertiesData?.data ?? []
@@ -88,17 +90,33 @@ export default function PaymentsPage() {
     return date.toLocaleDateString('pt-BR')
   }
 
-  // Filtros e busca
-  const filtered = payments.filter((p) => {
-    if (filter !== 'todos' && p.status !== filter) return false
-    if (search.trim()) {
-      const term = search.toLowerCase()
-      const tenantName = resolveTenantName(p.contractId).toLowerCase()
-      const propertyTitle = resolvePropertyTitle(p.contractId).toLowerCase()
-      return tenantName.includes(term) || propertyTitle.includes(term)
-    }
-    return true
-  })
+  // Filtros, busca e ordenação (mais recentes primeiro)
+  const filtered = payments
+    .filter((p) => {
+      if (filter !== 'todos' && p.status !== filter) return false
+      if (search.trim()) {
+        const term = search.toLowerCase()
+        const tenantName = resolveTenantName(p.contractId).toLowerCase()
+        const propertyTitle = resolvePropertyTitle(p.contractId).toLowerCase()
+        return tenantName.includes(term) || propertyTitle.includes(term)
+      }
+      return true
+    })
+    .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedPayments = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+  const handleFilterChange = (value: FilterType) => {
+    setFilter(value)
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    setCurrentPage(1)
+  }
 
   const filters: { label: string; value: FilterType }[] = [
     { label: 'Todos', value: 'todos' },
@@ -143,7 +161,7 @@ export default function PaymentsPage() {
               key={f.value}
               label={f.label}
               active={filter === f.value}
-              onClick={() => setFilter(f.value)}
+              onClick={() => handleFilterChange(f.value)}
             />
           ))}
         </div>
@@ -157,7 +175,7 @@ export default function PaymentsPage() {
             placeholder="Buscar por inquilino ou imóvel"
             className="pl-10 bg-white border-slate-200 rounded-lg"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
       </div>
@@ -202,7 +220,7 @@ export default function PaymentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filtered.map((payment) => (
+                {paginatedPayments.map((payment) => (
                   <TableRow
                     key={payment.id}
                     tenant={resolveTenantName(payment.contractId)}
@@ -216,6 +234,44 @@ export default function PaymentsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
+              <p className="text-sm text-slate-400">
+                Página {currentPage} de {totalPages}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                >
+                  ‹
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? 'bg-[#115e59] text-white'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+          )}
         </Card>
       )}
     </div>
