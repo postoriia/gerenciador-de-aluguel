@@ -43,6 +43,18 @@ export class ContractController {
     }
   }
 
+  public async findByOwner(
+    request: FastifyRequest
+  ): Promise<{ message: string; data: IContract[] }> {
+    const { sub } = request.user as { sub: string }
+    const contracts = await this.service.findByOwnerId(sub)
+
+    return {
+      message: 'Owner contracts retrieved successfully',
+      data: contracts
+    }
+  }
+
   public async deleteById(
     request: FastifyRequest
   ): Promise<{ message: string }> {

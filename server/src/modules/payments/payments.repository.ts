@@ -1,6 +1,6 @@
 import { DatabaseConnection } from '@/database/connection'
 import { IPayment, IPaymentRepository } from './payments.types'
-import { payments } from '@/database/schema'
+import { payments, contracts, properties } from '@/database/schema'
 import { eq } from 'drizzle-orm'
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import * as schema from '@/database/schema'
@@ -50,6 +50,21 @@ export class PaymentRepository implements IPaymentRepository {
       where: eq(payments.contractId, contractId)
     })
     return results as unknown as IPayment[]
+  }
+
+  async findByOwnerId(ownerId: string): Promise<IPayment[]> {
+    try {
+      const results = await this.db
+        .select()
+        .from(payments)
+        .innerJoin(contracts, eq(payments.contractId, contracts.id))
+        .innerJoin(properties, eq(contracts.propertyId, properties.id))
+        .where(eq(properties.ownerId, ownerId))
+
+      return results.map(r => r.payments) as unknown as IPayment[]
+    } catch (error) {
+      throw new Error('Error finding payments by owner: ' + error)
+    }
   }
 
   async deleteById(id: string): Promise<void> {

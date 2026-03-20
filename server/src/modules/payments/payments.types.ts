@@ -17,6 +17,7 @@ export interface IPaymentRepository {
   findById(id: string): Promise<IPayment | null>
   findAll(): Promise<IPayment[]>
   findByContractId(contractId: string): Promise<IPayment[]>
+  findByOwnerId(ownerId: string): Promise<IPayment[]>
   deleteById(id: string): Promise<void>
   update(id: string, data: Partial<Omit<IPayment, 'id' | 'createdAt'>>): Promise<IPayment>
 }

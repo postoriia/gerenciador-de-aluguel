@@ -19,6 +19,7 @@ export interface IContractRepository {
   ): Promise<IContract>
   findById(id: string): Promise<IContract | null>
   findAll(): Promise<IContract[]>
+  findByOwnerId(ownerId: string): Promise<IContract[]>
   deleteById(id: string): Promise<void>
   update(
     id: string,

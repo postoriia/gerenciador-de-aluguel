@@ -85,6 +85,23 @@ export class PropertyRepository implements IPropertyRepository {
         }
     }
 
+    async findByOwnerId(ownerId: string): Promise<IProperty[]> {
+        try {
+            const ownerProperties = await this.db.query.properties.findMany({
+                where: eq(properties.ownerId, ownerId)
+            })
+            return ownerProperties.map(property => ({
+                ...property,
+                area: Number(property.area),
+                rentAmount: Number(property.rentAmount),
+                condominiumFee: property.condominiumFee ? Number(property.condominiumFee) : null,
+                iptu: property.iptu ? Number(property.iptu) : null
+            })) as IProperty[]
+        } catch (error) {
+            throw new Error('Error finding properties by owner: ' + error)
+        }
+    }
+
     async deleteById(id: string): Promise<void> {
         try {
             await this.db.delete(properties).where(eq(properties.id, id))

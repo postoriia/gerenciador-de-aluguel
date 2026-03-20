@@ -33,6 +33,10 @@ export class TenantService {
         return await this.repository.findAll()
     }
 
+    public async findByOwnerId(ownerId: string): Promise<ITenant[]> {
+        return await this.repository.findByOwnerId(ownerId)
+    }
+
     public async deleteById(id: string): Promise<void> {
         return await this.repository.deleteById(id)
     }

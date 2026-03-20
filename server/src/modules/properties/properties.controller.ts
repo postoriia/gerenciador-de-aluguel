@@ -45,6 +45,19 @@ export class PropertyController {
         }
     }
 
+    public async findByOwner(
+        request: FastifyRequest
+    ): Promise<{ message: string; data: IProperty[] }> {
+        const { sub } = request.user as { sub: string }
+
+        const properties = await this.service.findByOwnerId(sub)
+
+        return {
+            message: 'Owner properties retrieved successfully',
+            data: properties
+        }
+    }
+
     public async deleteById(
         request: FastifyRequest
     ): Promise<{ message: string }> {

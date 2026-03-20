@@ -1,6 +1,6 @@
 import { DatabaseConnection } from '@/database/connection'
 import { ITenant, ITenantRepository } from './tenants.types'
-import { tenants } from '@/database/schema'
+import { tenants, contracts, properties } from '@/database/schema'
 import { eq } from 'drizzle-orm'
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import * as schema from '@/database/schema'
@@ -50,6 +50,28 @@ export class TenantRepository implements ITenantRepository {
             return allTenants as unknown as ITenant[]
         } catch (error) {
             throw new Error('Error finding all tenants: ' + error)
+        }
+    }
+
+    async findByOwnerId(ownerId: string): Promise<ITenant[]> {
+        try {
+            const results = await this.db
+                .select({ tenants })
+                .from(tenants)
+                .innerJoin(contracts, eq(contracts.tenantId, tenants.id))
+                .innerJoin(properties, eq(contracts.propertyId, properties.id))
+                .where(eq(properties.ownerId, ownerId))
+
+            // Remove duplicatas (um tenant pode ter múltiplos contratos)
+            const uniqueMap = new Map<string, ITenant>()
+            for (const r of results) {
+                if (!uniqueMap.has(r.tenants.id)) {
+                    uniqueMap.set(r.tenants.id, r.tenants as unknown as ITenant)
+                }
+            }
+            return Array.from(uniqueMap.values())
+        } catch (error) {
+            throw new Error('Error finding tenants by owner: ' + error)
         }
     }
 

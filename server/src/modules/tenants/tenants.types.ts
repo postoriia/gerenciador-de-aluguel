@@ -14,6 +14,7 @@ export interface ITenantRepository {
     ): Promise<ITenant>
     findById(id: string): Promise<ITenant | null>
     findAll(): Promise<ITenant[]>
+    findByOwnerId(ownerId: string): Promise<ITenant[]>
     deleteById(id: string): Promise<void>
     update(
         id: string,
