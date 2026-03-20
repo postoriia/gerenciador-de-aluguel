@@ -104,6 +104,7 @@ export default function DashboardPage() {
         <p className="text-slate-500 text-sm">
           Visão geral dos seus imóveis e pagamentos
         </p>
+
       </header>
 
       {/* Top Stats Grid */}
@@ -128,6 +129,7 @@ export default function DashboardPage() {
           color="red"
         />
       </div>
+      
 
       {/* Bottom Section Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
