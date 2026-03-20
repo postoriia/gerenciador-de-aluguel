@@ -1,6 +1,6 @@
 import { DatabaseConnection } from '@/database/connection'
 import { IContract, IContractRepository } from './contracts.types'
-import { contracts } from '@/database/schema'
+import { contracts, properties } from '@/database/schema'
 import { eq } from 'drizzle-orm'
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import * as schema from '@/database/schema'
@@ -33,6 +33,20 @@ export class ContractRepository implements IContractRepository {
   async findAll(): Promise<IContract[]> {
     const all = await this.db.query.contracts.findMany()
     return all as unknown as IContract[]
+  }
+
+  async findByOwnerId(ownerId: string): Promise<IContract[]> {
+    try {
+      const results = await this.db
+        .select()
+        .from(contracts)
+        .innerJoin(properties, eq(contracts.propertyId, properties.id))
+        .where(eq(properties.ownerId, ownerId))
+
+      return results.map(r => r.contracts) as unknown as IContract[]
+    } catch (error) {
+      throw new Error('Error finding contracts by owner: ' + error)
+    }
   }
 
   async deleteById(id: string): Promise<void> {

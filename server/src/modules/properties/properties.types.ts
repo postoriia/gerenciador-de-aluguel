@@ -26,6 +26,7 @@ export interface IPropertyRepository {
     ): Promise<IProperty>
     findById(id: string): Promise<IProperty | null>
     findAll(): Promise<IProperty[]>
+    findByOwnerId(ownerId: string): Promise<IProperty[]>
     deleteById(id: string): Promise<void>
     update(
         id: string,

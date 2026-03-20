@@ -49,6 +49,32 @@ export class TenantsRoutes {
         )
 
         fastifyWithZod.get(
+            '/owner',
+            {
+                onRequest: async (request, reply) => {
+                    try {
+                        await request.jwtVerify()
+                    } catch {
+                        return reply.status(401).send({ message: 'Unauthorized' })
+                    }
+                },
+                schema: {
+                    summary: 'List owner tenants',
+                    description: 'Returns tenants associated with the authenticated user via contracts.',
+                    tags: ['Tenants'],
+                    response: {
+                        200: z.object({
+                            message: z.string().describe('Success message'),
+                            data: z.array(tenantSchema).describe('List of owner tenant objects')
+                        }),
+                        401: messageSchema
+                    }
+                }
+            },
+            async (request, _reply) => await this.controller.findByOwner(request)
+        )
+
+        fastifyWithZod.get(
             '/:id',
             {
                 schema: {

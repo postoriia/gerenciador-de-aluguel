@@ -25,6 +25,10 @@ export class PaymentService {
     return await this.repository.findAll()
   }
 
+  public async findByOwnerId(ownerId: string): Promise<IPayment[]> {
+    return await this.repository.findByOwnerId(ownerId)
+  }
+
   public async findByContractId(contractId: string): Promise<IPayment[]> {
     return await this.repository.findByContractId(contractId)
   }

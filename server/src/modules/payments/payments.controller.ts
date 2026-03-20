@@ -27,6 +27,14 @@ export class PaymentController {
     return { message: 'Payments retrieved successfully', data: payments }
   }
 
+  public async findByOwner(
+    request: FastifyRequest
+  ): Promise<{ message: string; data: IPayment[] }> {
+    const { sub } = request.user as { sub: string }
+    const payments = await this.service.findByOwnerId(sub)
+    return { message: 'Owner payments retrieved successfully', data: payments }
+  }
+
   public async deleteById(request: FastifyRequest): Promise<{ message: string }> {
     const { id } = request.params as { id: string }
     await this.service.deleteById(id)

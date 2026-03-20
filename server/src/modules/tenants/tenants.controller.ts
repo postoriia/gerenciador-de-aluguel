@@ -45,6 +45,19 @@ export class TenantController {
         }
     }
 
+    public async findByOwner(
+        request: FastifyRequest
+    ): Promise<{ message: string; data: ITenant[] }> {
+        const { sub } = request.user as { sub: string }
+
+        const tenants = await this.service.findByOwnerId(sub)
+
+        return {
+            message: 'Owner tenants retrieved successfully',
+            data: tenants
+        }
+    }
+
     public async deleteById(
         request: FastifyRequest
     ): Promise<{ message: string }> {

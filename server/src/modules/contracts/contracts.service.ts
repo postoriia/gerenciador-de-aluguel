@@ -24,6 +24,10 @@ export class ContractService {
     return await this.repository.findAll()
   }
 
+  public async findByOwnerId(ownerId: string): Promise<IContract[]> {
+    return await this.repository.findByOwnerId(ownerId)
+  }
+
   public async deleteById(id: string): Promise<void> {
     // Poderia adicionar validação se o contrato existe antes de deletar (mas não quero)
     return await this.repository.deleteById(id)

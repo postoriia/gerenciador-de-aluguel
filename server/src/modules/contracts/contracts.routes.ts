@@ -46,6 +46,32 @@ export class ContractRoutes {
     )
 
     fastifyWithZod.get(
+      '/owner',
+      {
+        onRequest: async (request, reply) => {
+          try {
+            await request.jwtVerify()
+          } catch {
+            return reply.status(401).send({ message: 'Unauthorized' })
+          }
+        },
+        schema: {
+          summary: 'List owner contracts',
+          description: 'Returns contracts belonging to the authenticated user.',
+          tags: ['Contracts'],
+          response: {
+            200: z.object({
+              message: z.string(),
+              data: z.array(contractSchema)
+            }),
+            401: messageSchema
+          }
+        }
+      },
+      async (request) => await this.controller.findByOwner(request)
+    )
+
+    fastifyWithZod.get(
       '/:id',
       {
         schema: {
