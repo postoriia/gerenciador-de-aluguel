@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Loader2, Plus } from 'lucide-react' // Importado o Plus
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -16,9 +16,9 @@ export default function PropertiesPage() {
 
   const { data, isLoading, isError } = usePropertiesQuery()
 
-  if (isError) {
-    toast.error('Erro ao carregar imóveis.')
-  }
+  useEffect(() => {
+    if (isError) toast.error('Erro ao carregar imóveis.')
+  }, [isError])
 
   const properties: Property[] = data?.data ?? []
 

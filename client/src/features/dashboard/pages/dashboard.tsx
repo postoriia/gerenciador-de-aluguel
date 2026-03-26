@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { Building2, DollarSign, AlertCircle, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PaymentItem, PropertyItem, StatCard } from '../components'
@@ -29,8 +29,10 @@ export default function DashboardPage() {
 
   const isLoading = propertiesLoading || paymentsLoading || contractsLoading || tenantsLoading
 
-  if (propertiesError) toast.error('Erro ao carregar imóveis.')
-  if (paymentsError) toast.error('Erro ao carregar pagamentos.')
+  useEffect(() => {
+    if (propertiesError) toast.error('Erro ao carregar imóveis.')
+    if (paymentsError) toast.error('Erro ao carregar pagamentos.')
+  }, [propertiesError, paymentsError])
 
   const properties = propertiesData?.data ?? []
   const payments = paymentsData?.data ?? []
